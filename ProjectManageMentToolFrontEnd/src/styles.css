@@ -1,1 +1,18 @@
 /* You can add global styles to this file, and also import other style files */
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+/* For WebKit (Chrome, Safari) */
+::-webkit-scrollbar {
+    width: 0px; /* Change the width as needed */
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background-color: #3d3f4d3d; /* Change the color as needed */
+  }
+  
+  ::-webkit-scrollbar-track {
+    background-color: #726e6e;
+  }
+  

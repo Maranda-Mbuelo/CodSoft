@@ -10,18 +10,18 @@ namespace ProjectManagementTool.Data
         }
 
         public DbSet<Project> Projects { get; set; }
+        public DbSet<TaskItem> Tasks { get; set; }
         public DbSet<User> Users { get; set; }
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        /*protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // Configure the relationship between User and Project entities
             modelBuilder.Entity<Project>()
-                .HasOne(p => p.OwnerUser)
-                .WithMany(u => u.Projects) // Correct reference to 'Projects' property
-                .HasForeignKey(p => p.Owner)
+                .HasMany(p => p.Tasks)
+                .HasForeignKey(t => t.Id)
                 .OnDelete(DeleteBehavior.Cascade);
 
             base.OnModelCreating(modelBuilder);
-        }
+        }*/
+
     }
 }

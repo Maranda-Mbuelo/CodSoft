@@ -24,12 +24,33 @@ namespace ProjectManagementTool.Migrations
 
             modelBuilder.Entity("ProjectManagementTool.Models.Entites.Project", b =>
                 {
-                    b.Property<Guid>("ProjectId")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime?>("Deadline")
-                        .HasColumnType("datetime2");
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Projects");
+                });
+
+            modelBuilder.Entity("ProjectManagementTool.Models.Entites.TaskItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -38,17 +59,16 @@ namespace ProjectManagementTool.Migrations
                     b.Property<bool>("IsCompleted")
                         .HasColumnType("bit");
 
-                    b.Property<Guid?>("Owner")
+                    b.Property<Guid?>("ProjectId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("ProjectImageURL")
+                    b.Property<string>("Title")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("ProjectId");
+                    b.HasKey("Id");
 
-                    b.HasIndex("Owner");
-
-                    b.ToTable("Projects");
+                    b.ToTable("Tasks");
                 });
 
             modelBuilder.Entity("ProjectManagementTool.Models.Entites.User", b =>
@@ -76,12 +96,11 @@ namespace ProjectManagementTool.Migrations
 
             modelBuilder.Entity("ProjectManagementTool.Models.Entites.Project", b =>
                 {
-                    b.HasOne("ProjectManagementTool.Models.Entites.User", "OwnerUser")
+                    b.HasOne("ProjectManagementTool.Models.Entites.User", null)
                         .WithMany("Projects")
-                        .HasForeignKey("Owner")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.Navigation("OwnerUser");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("ProjectManagementTool.Models.Entites.User", b =>

@@ -1,9 +1,10 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using ProjectManagementTool.Data;
+using Microsoft.Extensions.Hosting;
 using ProjectManagementTool.Models.DTO;
 using ProjectManagementTool.Models.Entites;
+using ProjectManagementTool.Repositories;
 
 namespace ProjectManagementTool.Controllers
 {
@@ -11,94 +12,76 @@ namespace ProjectManagementTool.Controllers
     [ApiController]
     public class ProjectController : ControllerBase
     {
-        private readonly ProjectManagementDbContext dbContext;
-        public ProjectController(ProjectManagementDbContext dbContext)
+        private readonly IProjectRepository _projectRepository;
+
+        public ProjectController(IProjectRepository projectRepository)
         {
-            this.dbContext = dbContext;
+            _projectRepository = projectRepository;
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllProjects()
+        public async Task<ActionResult<IEnumerable<Project>>> GetAllProjects()
         {
-            var projects = await dbContext.Projects.ToListAsync();
-
+            var projects = await _projectRepository.GetAllProjects();
             return Ok(projects);
         }
 
-        [HttpGet]
-        [Route("{id:guid}")]
-        [ActionName("GetProjectById")]
-        public async Task<IActionResult> GetProjectById(Guid id)
+        [HttpGet("{projectId}")]
+        public async Task<ActionResult<Project>> GetProjectById(Guid projectId)
         {
-            var project = await dbContext.Projects.FirstOrDefaultAsync(project => project.ProjectId == id);
-            
-            if(project != null)
-            {
-                return Ok(project);
-            }
-            else
+            var project = await _projectRepository.GetProjectById(projectId);
+            if (project == null)
             {
                 return NotFound();
             }
+            return Ok(project);
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddProject(AddProjectRequest Project)
+        public async Task<ActionResult<Project>> CreateProject([FromBody] AddProjectRequest addProjectRequest)
         {
             var project = new Project
             {
-                Description = Project.Description,
-                ProjectImageURL = Project.ProjectImageURL,
-                Deadline = Project.Deadline,
-                IsCompleted = Project.IsCompleted,
-                Owner = Project.Owner,
-
+                Name = addProjectRequest.Name,
+                Description = addProjectRequest.Description,
+                /*Tasks = addProjectRequest.Tasks?.Select(Id => new TaskItem { Id = Id }).ToList(),*/
+                UserId = addProjectRequest.UserId,
             };
 
-            project.ProjectId = Guid.NewGuid();
-            await dbContext.Projects.AddAsync(project);
-            await dbContext.SaveChangesAsync();
+            project.Id = Guid.NewGuid();
 
-            return CreatedAtAction(nameof(GetProjectById), new { id = project.ProjectId }, project);
+            var createdProject = await _projectRepository.CreateProject(project);
+            return CreatedAtAction(nameof(GetProjectById), new { projectId = createdProject.Id }, createdProject);
         }
 
-        [HttpPut]
-        [Route("{id:guid}")]
-        public async Task<IActionResult> UpdateProject([FromRoute] Guid id, UpdateProjectDTO updatedProject)
+        [HttpPut("{projectId}")]
+        public async Task<ActionResult> UpdateProject(Guid projectId, [FromBody] UpdateProjectRequest updateProjectRequest)
         {
-            var existingProject = await dbContext.Projects.FindAsync(id);
-
-            if(existingProject != null)
-            {
-                existingProject.Description = updatedProject.Description;
-                existingProject.Deadline = updatedProject.Deadline;
-                existingProject.ProjectImageURL = updatedProject.ProjectImageURL;
-                existingProject.IsCompleted = updatedProject.IsCompleted;
-
-                await dbContext.SaveChangesAsync();
-                return Ok(existingProject);
-            }
-            else
+            var existingProject = await _projectRepository.GetProjectById(projectId);
+            if (existingProject == null)
             {
                 return NotFound();
             }
+
+            existingProject.Name = updateProjectRequest.Name;
+            existingProject.Description = updateProjectRequest.Description;
+            existingProject.UserId = existingProject.UserId;
+
+            await _projectRepository.UpdateProject(existingProject);
+            return Ok(existingProject);
         }
 
-        [HttpDelete]
-        [Route("{id:guid}")]
-        public async Task<IActionResult> DeleteProject(Guid id)
+        [HttpDelete("{projectId}")]
+        public async Task<ActionResult> DeleteProject(Guid projectId)
         {
-            var existingProject = await dbContext.Projects.FindAsync(id);
-
-            if (existingProject != null)
-            {
-                dbContext.Remove(existingProject);
-                return Ok(existingProject);
-            }
-            else
+            var existingProject = await _projectRepository.GetProjectById(projectId);
+            if (existingProject == null)
             {
                 return NotFound();
             }
+
+            await _projectRepository.DeleteProject(projectId);
+            return Ok(existingProject);
         }
     }
 }
