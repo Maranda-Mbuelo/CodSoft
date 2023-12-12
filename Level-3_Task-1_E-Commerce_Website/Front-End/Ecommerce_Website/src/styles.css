@@ -1,0 +1,19 @@
+/* You can add global styles to this file, and also import other style files
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities'; */
+
+/* You can add global styles to this file, and also import other style files */
+@import "~bootstrap/dist/css/bootstrap.css";
+
+
+
+*{
+    box-sizing: border-box;
+    padding: 0;
+}
+
+html{
+    padding: 0!important;
+    margin: 0!important;
+}

@@ -1,0 +1,534 @@
+<!-- <header class="navbar sticky-top bg-dark flex-md-nowrap p-0 shadow" data-bs-theme="dark">
+    <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3 fs-6 text-white" href="" [innerHTML]=" companyIcon + (companyName | titlecase) + ' -' + 'Admin Management'"></a>
+  
+    <ul class="navbar-nav flex-row d-md-none">
+      <li class="nav-item text-nowrap">
+        <button class="nav-link px-3 text-white" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSearch" aria-controls="navbarSearch" aria-expanded="false" aria-label="Toggle search">
+          <svg class="bi"><use xlink:href="#search"></use></svg>
+        </button>
+      </li>
+      <li class="nav-item text-nowrap">
+        <button class="nav-link px-3 text-white" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
+          <svg class="bi"><use xlink:href="#list"></use></svg>
+        </button>
+      </li>
+    </ul>
+  
+    <div id="navbarSearch" class="navbar-search w-100 collapse">
+      <input class="form-control w-100 rounded-0 border-0" type="text" placeholder="Search" aria-label="Search">
+    </div>
+  </header> -->
+
+
+<div class="container-fluid">
+  <div class="row">
+
+    <!-- Sidebar -->
+    <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
+      <div class="position-sticky">
+          <!-- Sidebar content goes here -->
+
+          <nav class="sidebar">
+            <div class="sidebar-header">
+              <h3>Menu</h3>
+            </div>
+            <ul class="list-unstyled components">
+              <li *ngFor="let link of links" class="nav-item">
+                <a [routerLink]="link.route" class="nav-link">{{ link.label }}</a>
+              </li>
+            </ul>
+          </nav>
+          
+
+      </div>
+  </nav>
+    
+
+    <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+        <!-- Navbar for main content -->
+      <nav class="navbar rounded bg-body-tertiary d-flex justify-content-between align-items-center p-4 mt-4 mb-3 mx-2 border-bottom">
+        <a class="navbar-brand">Dashboard</a>
+        <div class="btn-toolbar" role="group" aria-label="Basic outlined example">
+            <button type="button" class="btn btn-outline-primary mx-2">
+              <!-- <a class="nav-link" href="#scrollspyHeading1">Share</a> -->
+              Share
+            </button>
+            <button type="button" class="btn btn-outline-primary mx-2">Print</button>
+        </div>
+        <div class="dropdown-center">
+          <button class="btn btn-secondary dropdown-toggle px-5" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Filter Results
+          </button>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="#">Today</a></li>
+            <li><a class="dropdown-item" href="#">This Month</a></li>
+            <li><a class="dropdown-item" href="#">This Year</a></li>
+          </ul>
+        </div>
+    </nav>
+
+
+      <h2 class="mt-5 px-3">Products Section</h2>
+      <div class="table-responsive small mb-5 px-3">
+        <table class="table table-striped table-sm" *ngIf="products">
+          <thead>
+            <tr>
+              <th scope="col">No.</th>
+              <th scope="col">product id</th>
+              <th scope="col">product name</th>
+              <th scope="col">price</th>
+              <th scope="col">stock quantity</th>
+              <th scope="col">actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let product of products, let i = index">
+              <td>{{i + 1}}.</td>
+              <td>{{product.productID}}</td>
+              <td>{{product.productName}}</td>
+              <td>{{product.price | currency: 'R'}}</td>
+              <td>{{product.stockQuantity}}</td>
+              <td>
+                <div class="btn-group" role="group" aria-label="Basic outlined example">
+                  <button type="button" class="btn btn-outline-primary">View</button>
+                  <button (click)="assignProduct(product.productID)" type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#editFormModal">Edit</button>
+                  <!-- <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addProductFormModal">Add +</button> -->
+                  <button (click)="deleteProduct(product.productID)" type="button" class="btn btn-outline-danger">
+                    <a style="color: #b82222;"><i class="fas fa-trash-alt"></i></a>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="d-flex justify-content-end align-items-center w-100">
+          <button type="button" class="btn btn-secondary px-5" data-bs-toggle="modal" data-bs-target="#addProductFormModal">{{'add product +' | titlecase}}</button>
+        </div>
+        
+      </div>
+
+
+
+      <!-- ====================================== Products Modals Start ==================================== -->
+      <!-- ===============================Edit Modal============================ -->
+      <div class="modal fade" id="editFormModal" tabindex="-1" aria-labelledby="editFormModal" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h1 class="modal-title fs-5" id="exampleModalLabel" [innerText]="'Id No: ' + editedProduct.productID"></h1>
+              <button (click)="clearProduct()" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <!-- Here is where i start editimg -->
+              <div class="row">
+                <div class="col">
+                  <div class="form-outline">
+                    <input name="productName" [(ngModel)]="editedProduct.productName" placeholder="Enter Name" type="text" id="form8Example1" class="form-control" />
+                    <label class="form-label" for="form8Example1">Product Name</label>
+                  </div>
+                </div>
+                <div class="col">
+                  <div class="form-outline">
+                    <input name="description" [(ngModel)]="editedProduct.description" placeholder="Enter Description" type="text" id="form8Example2" class="form-control" />
+                    <label class="form-label" for="form8Example2">product description</label>
+                  </div>
+                </div>
+              </div>
+              
+              <hr />
+              
+              <div class="row">
+                <div class="col">
+                  <div class="form-outline">
+                    <input name="price" [(ngModel)]="editedProduct.price" placeholder="Enter Price" type="text" id="form8Example3" class="form-control" />
+                    <label class="form-label" for="form8Example3">product price</label>
+                  </div>
+                </div>
+                <div class="col">
+                  <div class="form-outline">
+                    <input name="stockQuantity" [(ngModel)]="editedProduct.stockQuantity" placeholder="Enter Quantity" type="text" id="form8Example4" class="form-control" />
+                    <label class="form-label" for="form8Example4">product quantity</label>
+                  </div>
+                </div>
+                <!-- <div class="col">
+                   Email input 
+                  <div class="form-outline">
+                    <input type="email" id="form8Example5" class="form-control" />
+                    <label class="form-label" for="form8Example5">Email address</label>
+                  </div>
+                </div> -->        
+              </div>
+
+
+              <hr/>
+
+                <div class="row">
+                  <div class="col">
+                    <div class="form-outline">
+                      <input name="imageURL" [(ngModel)]="editedProduct.imageURL" placeholder="Enter ImageURL" type="text" id="form8Example1" class="form-control" />
+                      <label class="form-label" for="form8Example1">Product Image url</label>
+                    </div>
+                  </div>
+                </div>
+
+
+              <!-- editing ends -->
+            </div>
+            <div class="modal-footer">
+              <button (click)="clearProduct()" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              <button (click)="editProduct(editedProduct.productID, editedProduct)" type="button" class="btn btn-primary">Save changes</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ======================Products Edit Modal end========================= -->
+
+
+
+      <!-- ===============================Add Modal============================ -->
+      <div class="modal fade" id="addProductFormModal" tabindex="-1" aria-labelledby="addProductFormModal" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h1 class="modal-title fs-5" id="exampleModalLabel"> Add New Product</h1>
+              <button (click)="clearProduct()" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <!-- Here is where i start editimg -->
+              <div class="row">
+                <div class="col">
+                  <div class="form-outline">
+                    <input name="productName" [(ngModel)]="editedProduct.productName" placeholder="Enter Name" type="text" id="form8Example1" class="form-control" />
+                    <label class="form-label" for="form8Example1">Product Name</label>
+                  </div>
+                </div>
+                <div class="col">
+                  <div class="form-outline">
+                    <input name="description" [(ngModel)]="editedProduct.description" placeholder="Enter Description" type="email" id="form8Example2" class="form-control" />
+                    <label class="form-label" for="form8Example2">product description</label>
+                  </div>
+                </div>
+              </div>
+              
+              <hr />
+              
+              <div class="row">
+                <div class="col">
+                  <div class="form-outline">
+                    <input name="price" [(ngModel)]="editedProduct.price" type="text" placeholder="Enter Price" id="form8Example3" class="form-control" />
+                    <label class="form-label" for="form8Example3">product price</label>
+                  </div>
+                </div>
+                <div class="col">
+                  <div class="form-outline">
+                    <input name="stockQuantity" [(ngModel)]="editedProduct.stockQuantity" placeholder="Enter Quantity" type="text" id="form8Example4" class="form-control" />
+                    <label class="form-label" for="form8Example4">product quantity</label>
+                  </div>
+                </div>   
+              </div>
+
+              <hr />
+
+                <div class="row">
+                  <div class="col">
+                    <div class="form-outline">
+                      <input name="imageURL" [(ngModel)]="editedProduct.imageURL" placeholder="Enter ImageURL" type="text" id="form8Example1" class="form-control" />
+                      <label class="form-label" for="form8Example1">Product Image url</label>
+                    </div>
+                  </div>
+                </div>
+
+
+              <!-- editing ends -->
+            </div>
+            <div class="modal-footer">
+              <button (click)="clearProduct()" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              <button (click)="addProduct(editedProduct)" type="button" class="btn btn-primary" data-bs-dismiss="modal">Save Product</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ======================Add Modal end========================= -->
+
+
+
+      <!-- ======================================== Products Modal Endss ============================================ -->
+
+
+
+      <!-- <div data-bs-spy="scroll" data-bs-target="#navbar-example2" data-bs-root-margin="0px 0px -40%" data-bs-smooth-scroll="true" class="scrollspy-example bg-body-tertiary p-3 rounded-2" tabindex="0"> -->
+        <h2 class="mt-5 px-3" id="scrollspyHeading1">Users Section</h2>
+      <!-- </div> -->
+      
+      <div class="table-responsive small px-3">
+        <table class="table table-striped table-sm" *ngIf="users">
+          <thead>
+            <tr>
+              <th scope="col">No.</th>
+              <th scope="col">user id</th>
+              <th scope="col">user name</th>
+              <th scope="col">user email</th>
+              <th scope="col">got cart?</th>
+              <th scope="col">items ?</th>
+              <th scope="col">actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let user of users, let i = index">
+              <td>{{i + 1}}.</td>
+              <td>{{user.userID}}</td>
+              <td>{{user.username}}</td>
+              <td>{{user.email}}</td>
+              <td>{{getCart(user.userID)}}</td>
+              <td>{{getCartCount(user.userID)}}</td>
+              <td>
+                <div class="btn-group" role="group" aria-label="Basic outlined example">
+                  <button type="button" class="btn btn-outline-primary">View</button>
+                  <button (click)="assignUser(user.userID)" type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#editUserFormModal">Edit</button>
+                  <!-- <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addUserFormModal">Add +</button> -->
+                  <button (click)="assignUserToBeDeleted(user.userID)" data-bs-toggle="modal" data-bs-target="#deleteUserFormModal" type="button" class="btn btn-outline-danger">
+                    <a style="color: #b82222;"><i class="fas fa-trash-alt"></i></a>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+
+        <div class="d-flex justify-content-end align-items-center w-100">
+          <button type="button" class="btn btn-secondary px-5" data-bs-toggle="modal" data-bs-target="#addUserFormModal">{{'add user +' | titlecase}}</button>
+        </div>
+
+      </div>
+
+
+
+
+      <!-- ======================User Delete Confirmation ======================= -->
+
+
+
+      <div class="modal fade" id="deleteUserFormModal" tabindex="-1" aria-labelledby="deleteUserFormModal" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+          <div class="modal-content bg-dark text-white">
+            <div class="modal-header">
+              <h1 class="modal-title fs-5" id="exampleModalLabel">Delete User</h1>
+              <button type="button" class="btn-close bg-secondary text-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body flex-row justify-content-center align-items-center" >
+              <!-- Here is where i start editimg -->
+              <p [innerText]="'are you sure you want to delete user?' | titlecase"></p>
+              
+            </div>
+            <div class="modal-footer">
+              <button (click)="clearUserToBeDeleted()" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              <button (click)="deleteUser()" type="button" class="btn btn-danger" data-bs-dismiss="modal">Confirm</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+
+      <!-- ======================User Delete Confirmation ======================= -->
+
+
+
+
+
+
+      <!-- ======================Users Edit Modal Starts========================= -->
+
+      <div class="modal fade" id="editUserFormModal" tabindex="-1" aria-labelledby="editUserFormModal" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h1 class="modal-title fs-5" id="exampleModalLabel">Edit User</h1>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <!-- Here is where i start editimg -->
+              <div class="row">
+                <div class="col">
+                  <div class="form-outline">
+                    <input name="username" [(ngModel)]="editedUser.username" placeholder="Enter Username" type="text" id="form8Example1" class="form-control" />
+                    <label class="form-label" for="form8Example1">Username</label>
+                  </div>
+                </div>
+                <div class="col">
+                  <div class="form-outline">
+                    <input name="email" [(ngModel)]="editedUser.email" placeholder="Enter Email" type="email" id="form8Example2" class="form-control" />
+                    <label class="form-label" for="form8Example2">user email</label>
+                  </div>
+                </div>
+              </div>
+              
+              <hr />
+              
+              <!-- <div class="row">
+                <div class="col">
+                  <div class="form-outline">
+                    <input name="price" [(ngModel)]="editedProduct.price" type="text" id="form8Example3" class="form-control" />
+                    <label class="form-label" for="form8Example3">product price</label>
+                  </div>
+                </div>
+                <div class="col">
+                  <div class="form-outline">
+                    <input name="stockQuantity" [(ngModel)]="editedProduct.stockQuantity" type="text" id="form8Example4" class="form-control" />
+                    <label class="form-label" for="form8Example4">product quantity</label>
+                  </div>
+                </div>   
+              </div>
+
+              <hr />
+
+                <div class="row">
+                  <div class="col">
+                    <div class="form-outline">
+                      <input name="imageURL" [(ngModel)]="editedProduct.imageURL" type="text" id="form8Example1" class="form-control" />
+                      <label class="form-label" for="form8Example1">Product Image url</label>
+                    </div>
+                  </div>
+                </div> -->
+
+
+              <!-- editing ends -->
+            </div>
+            <div class="modal-footer">
+              <button (click)="clearUser()" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              <button (click)="editUser(editedUser.userID, editedUser)" type="button" class="btn btn-primary" data-bs-dismiss="modal">Save User</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ======================Users Edit Modal end========================= -->
+
+
+
+      <!-- ===============================Add Modal============================ -->
+      <div class="modal fade" id="addUserFormModal" tabindex="-1" aria-labelledby="addUserFormModal" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h1 class="modal-title fs-5" id="exampleModalLabel">Add New User</h1>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <!-- Here is where i start editimg -->
+              <div class="row">
+                <div class="col">
+                  <div class="form-outline">
+                    <input name="username" [(ngModel)]="editedUser.username" placeholder="Enter Username" type="text" id="form8Example1" class="form-control" />
+                    <label class="form-label" for="form8Example1">Username</label>
+                  </div>
+                </div>
+                <div class="col">
+                  <div class="form-outline">
+                    <input name="email" [(ngModel)]="editedUser.email" placeholder="Enter Email" type="email" id="form8Example2" class="form-control" />
+                    <label class="form-label" for="form8Example2">user email</label>
+                  </div>
+                </div>
+              </div>
+              
+              <hr />
+              
+              <!-- <div class="row">
+                <div class="col">
+                  <div class="form-outline">
+                    <input name="price" [(ngModel)]="editedProduct.price" type="text" id="form8Example3" class="form-control" />
+                    <label class="form-label" for="form8Example3">product price</label>
+                  </div>
+                </div>
+                <div class="col">
+                  <div class="form-outline">
+                    <input name="stockQuantity" [(ngModel)]="editedProduct.stockQuantity" type="text" id="form8Example4" class="form-control" />
+                    <label class="form-label" for="form8Example4">product quantity</label>
+                  </div>
+                </div>   
+              </div>
+
+              <hr />
+
+                <div class="row">
+                  <div class="col">
+                    <div class="form-outline">
+                      <input name="imageURL" [(ngModel)]="editedProduct.imageURL" type="text" id="form8Example1" class="form-control" />
+                      <label class="form-label" for="form8Example1">Product Image url</label>
+                    </div>
+                  </div>
+                </div> -->
+
+
+              <!-- editing ends -->
+            </div>
+            <div class="modal-footer">
+              <button (click)="clearUser()" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              <button (click)="addUser(editedUser)" type="button" class="btn btn-primary" data-bs-dismiss="modal">Add User</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ======================Add Modal end========================= -->
+
+
+
+      <!-- ======================================== Users Modal Endss ============================================ -->
+
+
+
+
+
+
+
+      <h2 class="mt-5 px-3">Carts Section</h2>
+      <div class="table-responsive small px-3 pb-3">
+        <table class="table table-striped table-sm" *ngIf="carts">
+          <thead>
+            <tr>
+              <th scope="col">No.</th>
+              <th scope="col">cart id</th>
+              <th scope="col">cart owner Id</th>
+              <th scope="col">owner name</th>
+              <th scope="col">total value</th>
+              <th scope="col">actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let cart of carts, let i = index">
+              <td>{{i + 1}}.</td>
+              <td>{{cart.cartID}}</td>
+              <td>{{cart.ownerUserID}}</td>
+              <td>{{getCartOwnerName(cart.ownerUserID)}}</td>
+              <td>{{getTotalCartPrice(cart.ownerUserID) | currency: 'R'}}</td>
+              <td>
+                <div class="btn-group" role="group" aria-label="Basic outlined example">
+                  <button type="button" class="btn btn-outline-primary">View</button>
+                  <button type="button" class="btn btn-outline-secondary">Edit</button>
+                  <button type="button" class="btn btn-outline-danger">
+                    <a style="color: #b82222;"><i class="fas fa-trash-alt"></i></a>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+
+        <div class="d-flex justify-content-end align-items-center w-100">
+          <button type="button" class="btn btn-secondary px-5" data-bs-toggle="modal" data-bs-target="#addCartFormModal">{{'add cart +' | titlecase}}</button>
+        </div>
+
+      </div>
+
+    </main>
+  </div>
+</div>
